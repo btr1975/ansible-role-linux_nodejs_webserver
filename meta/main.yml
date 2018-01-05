@@ -35,7 +35,7 @@ galaxy_info:
   platforms:
   - name: Debian
     versions:
-    - Stretch
+    - stretch
   - name: EL
     versions:
     - 7
