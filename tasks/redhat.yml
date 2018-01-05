@@ -1,0 +1,8 @@
+--- # RedHat Specific Installs
+
+-   name: Install Git Redhat
+    yum:
+        name: git
+        state: present
+    become: yes
+

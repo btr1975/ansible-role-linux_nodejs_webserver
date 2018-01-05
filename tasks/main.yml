@@ -1,0 +1,32 @@
+--- # tasks file for linux_nodejs_ms_sql_webserver
+
+-   import_tasks: ./redhat.yml
+    when: ansible_os_family|lower == "redhat"
+
+-   import_tasks: ./debian.yml
+    when: ansible_os_family|lower == "debian"
+
+-   import_tasks: ./nvm.yml
+    when: install_type|lower == 'nvm'
+
+-   import_tasks: ./serverwide.yml
+    when: install_type|lower == 'server'
+
+-   name: Create directory structure
+    file:
+        path: "{{ node_js_app_directory }}"
+        state: directory
+    become: yes
+
+-   name: Create hello_world directory
+    file:
+        path: '{{ node_js_app_directory }}/hello_world'
+        state: directory
+    become: yes
+
+-   name: Install Hello World NodeJS App
+    template:
+        src: hello_server.jinja2
+        dest: '{{ node_js_app_directory }}/hello_world/hello_server.js'
+    become: yes
+

@@ -1,0 +1,78 @@
+--- # Server Wide Install
+
+-   name: Check if NodeJS {{ node_js_pacakge }}  install has been dowloaded
+    shell: ls {{ node_js_pacakge_location }}
+    register: nodejs_install_downloaded
+    changed_when: nodejs_install_downloaded.rc >= 1
+    ignore_errors: true
+
+-   name: Download NodeJS {{ node_js_pacakge }}
+    get_url:
+        url: "{{ node_js_pacakge_url }}"
+        dest: /tmp
+        mode: 0777
+    when: nodejs_install_downloaded.rc >= 1
+
+-   name: Check if version {{ node_js_pacakge }} is already installed
+    shell: ls /opt/node/bin/node
+    register: nodejs_installed_already
+    changed_when: nodejs_installed_already.rc >= 1
+    ignore_errors: true
+    become: yes
+
+-   name: Create directory /opt/node
+    file:
+        path: /opt/node
+        state: directory
+    become: yes
+
+-   name: Run NodeJS {{ node_js_pacakge }} Unzip install
+    shell: tar --strip-components 1 -xzvf /tmp/node-v* -C /opt/node
+    become: yes
+    when: nodejs_installed_already.rc >= 1
+
+-   name:  Add symlink to /usr/local for node
+    file:
+        src: /opt/node/bin/node
+        dest: /usr/local/bin/node
+        state: link
+    become: yes
+
+-   name:  Add symlink to /usr/local for npm
+    file:
+        src: /opt/node/bin/npm
+        dest: /usr/local/bin/npm
+        state: link
+    become: yes
+
+-   name: Install PM2 for Node App Daemonizing
+    shell: npm install pm2@latest -g
+    register: pm2_installed
+    become: yes
+    changed_when: pm2_installed.rc  >= 1
+    when: nodejs_installed_already.rc >= 1
+
+-   name:  Add symlink to /usr/local for pm2
+    file:
+        src: /opt/node/bin/pm2
+        dest: /usr/local/bin/pm2
+        state: link
+    become: yes
+
+-   name: Start PM2 as a service at startup
+    shell: pm2 startup systemd
+    register: pm2_started
+    become: yes
+    changed_when: pm2_started.rc  >= 1
+
+-   name: Create hello_world directory
+    file:
+        path: '{{ node_js_app_directory }}/hello_world'
+        state: directory
+
+-   name: Install Hello World NodeJS App
+    template:
+        src: hello_server.jinja2
+        dest: '{{ node_js_app_directory }}/hello_world/hello_server.js'
+
+- 

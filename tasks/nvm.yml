@@ -1,0 +1,53 @@
+--- # NVM Install
+
+-   name: Check if nvm install has been dowloaded
+    shell: ls /tmp/install.sh
+    register: nvm_install_downloaded
+    changed_when: nvm_install_downloaded.rc >= 1
+    ignore_errors: true
+
+-   name: Download nvm
+    get_url:
+        url: https://raw.githubusercontent.com/creationix/nvm/v0.13.1/install.sh
+        dest: /tmp
+        mode: 0777
+    when: nvm_install_downloaded.rc >= 1
+
+-   pause:
+        seconds: 5
+    when: nvm_install_downloaded.rc >= 1
+
+-   name: Run nvm install
+    shell: /tmp/install.sh
+    register: nvm_good
+    when: nvm_install_downloaded.rc >= 1
+
+-   name: Check if version {{ node_js_nvm_version }} currently downloaded
+    shell: ls ~/.nvm/{{ node_js_nvm_version }}
+    register: version_downloaded
+    changed_when: version_downloaded.rc >= 1
+    ignore_errors: true
+
+-   name: Install NodeJS {{ node_js_nvm_version }} via nvm RedHat
+    shell: source ~/.bash_profile && nvm install {{ node_js_nvm_version }}
+    register: version_installed
+    when: 'version_downloaded.rc >= 1 and ansible_os_family|lower == "redhat"'
+
+-   name: Install NodeJS {{ node_js_nvm_version }} via nvm Debian
+    shell: source ~/.profile && nvm install {{ node_js_nvm_version }}
+    args:
+        executable: /bin/bash
+    register: version_installed
+    when: 'version_downloaded.rc >= 1 and ansible_os_family|lower == "debian"'
+
+-   name: Set NodeJS version {{ node_js_nvm_version }} via nvm RedHat
+    shell: source ~/.bash_profile && nvm alias default {{ node_js_nvm_version }}
+    register: version_installed
+    when: 'version_downloaded.rc >= 1 and ansible_os_family|lower == "redhat"'
+
+-   name: Set NodeJS version {{ node_js_nvm_version }} via nvm Debian
+    shell: source ~/.profile && nvm alias default {{ node_js_nvm_version }}
+    args:
+        executable: /bin/bash
+    register: version_installed
+    when: 'version_downloaded.rc >= 1 and ansible_os_family|lower == "debian"'

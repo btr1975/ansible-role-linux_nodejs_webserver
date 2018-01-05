@@ -1,0 +1,7 @@
+--- # Debian Specific Installs
+
+-   name: Install Git Debian
+    apt:
+        name: git
+        state: present
+    become: yes

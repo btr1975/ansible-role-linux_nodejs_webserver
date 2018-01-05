@@ -1,0 +1,12 @@
+--- # vars file for linux_nodejs_ms_sql_webserver
+
+# What NodeJS to install and where to put the download file
+node_js_pacakge: node-v6.11.3-linux-x64.tar.gz 
+node_js_pacakge_url: http://nodejs.org/dist/v6.11.3/{{ node_js_pacakge }}
+node_js_pacakge_location: /tmp/{{ node_js_pacakge }}
+
+# NVM NodeJS install
+node_js_nvm_version: v6.11.3
+
+# NodeJS app info
+node_js_app_directory: /opt/devops
